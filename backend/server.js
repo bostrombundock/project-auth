@@ -106,7 +106,7 @@ const authenticateUser = async (req, res, next) => {
       });
     }
   } catch (error) {
-    res.status(400).json({o
+    res.status(400).json({
       response: error,
       success: false,
     });
