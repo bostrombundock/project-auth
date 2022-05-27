@@ -3,7 +3,7 @@ import { useDispatch, useSelector, batch } from "react-redux";
 import { useNavigate, Link } from "react-router-dom";
 
 import { API_URL } from "utils/utils";
-import user from "reducers/user"
+import user from "reducers/user";
 
 const Login = () => {
   const [username, setUsername] = useState("");
@@ -15,11 +15,11 @@ const Login = () => {
   const navigate = useNavigate();
   const accessToken = useSelector((store) => store.user.accessToken);
 
-  useEffect( ()=>{
-    if(accessToken) {
-        navigate("/");
+  useEffect(() => {
+    if (accessToken) {
+      navigate("/");
     }
-}, [accessToken]);
+  }, [accessToken]);
 
   const onFormSubmit = (event) => {
     event.preventDefault();
@@ -33,37 +33,45 @@ const Login = () => {
     };
 
     fetch(API_URL(mode), options)
-            .then(res => res.json())
-            .then(data => {
-                console.log(data);
-                if (data.success) {
-                    batch(()=> {
-                        dispatch(user.actions.setUserId(data.userId));
-                        dispatch(user.actions.setAccessToken(data.accessToken));
-                        dispatch(user.actions.setUsername(data.username));
-                        dispatch(user.actions.setError(null));
-                    });
-                   
-                } else {
-                    batch(()=> {
-                        dispatch(user.actions.setError(data.response));
-                        dispatch(user.actions.setUserId(null));
-                        dispatch(user.actions.setAccessToken(null));
-                        dispatch(user.actions.setUsername(null));
-                    });
-                   
-                }
-            })
-  }
+      .then((res) => res.json())
+      .then((data) => {
+        console.log(data);
+        if (data.success) {
+          batch(() => {
+            dispatch(user.actions.setUserId(data.userId));
+            dispatch(user.actions.setAccessToken(data.accessToken));
+            dispatch(user.actions.setUsername(data.username));
+            dispatch(user.actions.setError(null));
+          });
+        } else {
+          batch(() => {
+            dispatch(user.actions.setError(data.response));
+            dispatch(user.actions.setUserId(null));
+            dispatch(user.actions.setAccessToken(null));
+            dispatch(user.actions.setUsername(null));
+          });
+        }
+      });
+  };
 
   return (
     <>
-    <Link to="/"> LINK TO /</Link>
-    <label htmlFor="register">Register</label>
-    <input type ="radio" id="register" checked={mode === "register"} onChange={()=> setMode("register")}/>
+      <Link to="/"> LINK TO /</Link>
+      <label htmlFor="register">Register</label>
+      <input
+        type="radio"
+        id="register"
+        checked={mode === "register"}
+        onChange={() => setMode("register")}
+      />
 
-    <label htmlFor="login">Login</label>
-    <input type="radio" id="login" checked={mode === "login"} onChange={()=> setMode("login")}/>
+      <label htmlFor="login">Login</label>
+      <input
+        type="radio"
+        id="login"
+        checked={mode === "login"}
+        onChange={() => setMode("login")}
+      />
 
       <form onSubmit={onFormSubmit}>
         <label htmlFor="username">Username</label>

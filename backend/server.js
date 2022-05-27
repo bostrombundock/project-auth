@@ -8,13 +8,9 @@ const mongoUrl = process.env.MONGO_URL || "mongodb://localhost/project-mongo";
 mongoose.connect(mongoUrl, { useNewUrlParser: true, useUnifiedTopology: true });
 mongoose.Promise = Promise;
 
-// Defines the port the app will run on. Defaults to 8080, but can be overridden
-// when starting the server. Example command to overwrite PORT env variable value:
-// PORT=9000 npm start
 const port = process.env.PORT || 8080;
 const app = express();
 
-// Add middlewares to enable cors and json body parsing
 app.use(cors());
 app.use(express.json());
 
@@ -40,9 +36,9 @@ app.post("/register", async (req, res) => {
   const { username, password } = req.body;
   try {
     const salt = bcrypt.genSaltSync();
-    if (password.length < 8) {
+    if (password.length < 2) {
       res.status(400).json({
-        response: "Password must contain more than 8 characters",
+        response: "Password must contain more than 2 characters",
         success: false,
       });
     } else {
@@ -69,8 +65,10 @@ app.post("/register", async (req, res) => {
 
 app.post("/login", async (req, res) => {
   const { username, password } = req.body;
+
   try {
     const user = await User.findOne({ username });
+
     if (user && bcrypt.compareSync(password, user.password)) {
       res.status(200).json({
         success: true,
@@ -112,27 +110,34 @@ const authenticateUser = async (req, res, next) => {
   }
 };
 
-// app.get("/mypage", authenticateUser);
-// app.get("/mypage", (req, res) => {res.send("this is my page")});
+const ThoughtSchema = new mongoose.Schema({
+  message: String,
+  hearths: {
+    type: Number,
+    default: 0,
+  },
+  createdAt: {
+    type: Date,
+    default: () => new Date(),
+  },
+});
+const Thought = mongoose.model("Thought", ThoughtSchema);
 
-// app.use(cors({
-//   origin: "https://my-origin.com"
-// }))
+app.get("/thoughts", authenticateUser);
+app.get("/thoughts", async (req, res) => {
+  const thoughts = await Thought.find({});
+  res.status(200).json({ response: thoughts, success: true });
+});
 
-// const allowedDomains = [
-//   "http://lalala.io",
-//   "http://something.com",
-//   "https://lorem.com",
-// ];
-// app.use(cors({
-//   origin: (origin, callback) => {
-//     if (allowedDomains.includes(origin)) {
-//       return callback(null, true);
-//     } else {
-//       return callback(new Error("domain not allowed"), false);
-//     }
-//   }
-// }));
+app.post("/thoughts", async (req, res) => {
+  const { message } = req.body;
+  try {
+    const newThought = await new Thought({ message }).save();
+    res.status(201).json({ response: newThought, success: true });
+  } catch (error) {
+    res.status(400).json({ response: error, success: false });
+  }
+});
 
 // Start defining your routes here
 app.get("/", (req, res) => {

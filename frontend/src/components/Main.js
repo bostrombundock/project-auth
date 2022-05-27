@@ -18,35 +18,34 @@ const Main = () => {
   }, [accessToken]);
 
   useEffect(() => {
-
     const options = {
-        method: "GET",
-        headers: {
-            "Content-Type": "application/json",
-            "Authorization": accessToken
-        }
-    }
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: accessToken,
+      },
+    };
 
     fetch(API_URL("thoughts"), options)
-        .then(res => res.json())
-        .then(data => {
-            if (data.success) {
-                dispatch(thoughts.actions.setItems(data.response));
-                dispatch(thoughts.actions.setError(null));
-            } else {
-                dispatch(thoughts.actions.setError(data.response));
-                dispatch(thoughts.actions.setItems([]));
-            }
-        })
-}, []);
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success) {
+          dispatch(thoughts.actions.setItems(data.response));
+          dispatch(thoughts.actions.setError(null));
+        } else {
+          dispatch(thoughts.actions.setError(data.response));
+          dispatch(thoughts.actions.setItems([]));
+        }
+      });
+  }, []);
 
   return (
     <>
       <Link to="login"> LINK TO /login </Link>
       <h1>This is Main</h1>
       {thoughtItems.map((item) => {
-                return <div key = {item._id}>{item.message}</div>
-            })}
+        return <div key={item._id}>{item.message}</div>;
+      })}
     </>
   );
 };
